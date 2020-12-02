@@ -1,0 +1,42 @@
+---
+title: "project 2 sample code"
+author: "Sneha Jadhav"
+date: "12/2/2020"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(mclust)
+data(diabetes)
+dat = diabetes
+head(dat)
+class <- diabetes$class
+dat=dat[,-1]
+head(dat)
+fit=Mclust(dat)
+fit$G
+fit$BIC
+fit$parameters$pro
+fit$parameters$mean
+fit$parameters$variance
+```
+
+```{r}
+head(fit$z)
+dim(fit$z)
+head(fit$classification)
+
+class_est = fit$classification
+unique(class_est)
+
+ls=list()
+
+for(i in 1:length(unique(class_est))){
+  ls[[i]]=class[which(class_est==i)]
+}
+```
+
