@@ -1,0 +1,80 @@
+---
+title: "Project 2"
+author: "Paul Kefer"
+date: "12/2/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+# Load dependencies
+library(readr)
+library(dplyr)
+library(mclust)
+library(umap)
+```
+
+
+```{r}
+# Load dataset
+
+# MNIST code from
+# https://www.r-bloggers.com/2018/01/exploring-handwritten-digit-classification-a-tidy-analysis-of-the-mnist-dataset/
+
+mnist_raw <- read_csv("mnist_train.csv", col_names = FALSE)
+```
+```{r}
+mnist = mnist_raw[mnist_raw[,1] == 1|mnist_raw[,1] == 0,]
+mnist_labels = mnist[1:100,1]
+mnist_labels_names =  as.factor(mnist_labels$X1)
+mnist_input = mnist[1:100,-1]
+```
+
+```{r}
+# Apply dimension reduction
+# modified from
+# https://cran.r-project.org/web/packages/umap/vignettes/umap.html
+
+mnist_umap = umap(mnist_input)
+```
+
+```{r}
+plot(mnist_umap$layout, col=mnist_labels_names, xlab="First UMAP component", ylab="Second UMAP component")
+title("UMAP projection of MNIST digits")
+legend(-3,0,unique(mnist_labels_names),col=1:100,pch=1, horiz=TRUE)
+```
+
+```{r}
+BIC <- mclustBIC(mnist_umap$layout)
+plot(BIC)
+```
+
+
+```{r}
+# Apply clustering
+clustering = Mclust(mnist_umap$layout)
+labels = clustering$classification
+plot(mnist_umap$layout, col=labels, xlab="First UMAP component", ylab="Second UMAP component")
+title("UMAP projection")
+legend(-3,0,unique(labels),col=1:100,pch=1, horiz=TRUE)
+```
+
+```{r}
+# Apply clustering
+clustering = Mclust(mnist_umap$layout, 2)
+labels = clustering$classification
+plot(mnist_umap$layout, col=labels, xlab="First UMAP component", ylab="Second UMAP component")
+title("UMAP projection")
+legend(-3,0,c(0,1),col=1:100,pch=1, horiz=TRUE)
+```
+
+```{r}
+correct = sum(factor(labels-1) == mnist_labels_names)
+100-correct
+acc = correct/100
+acc
+```
+
